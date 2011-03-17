@@ -1,0 +1,61 @@
+#drDoctrineCompilePlugin#
+
+This plugin provides a ``doctrine:compile-core`` task which automatically compiles ``Doctrine`` classes for the database drivers you are using in your project.
+The plugin uses the ``Doctrine_Compiler::compile`` method (see [http://www.doctrine-project.org/projects/orm/1.2/docs/manual/improving-performance/en#compile](http://www.doctrine-project.org/projects/orm/1.2/docs/manual/improving-performance/en#compile))
+
+Once compiled, the plugin loads the compiled file, instead of the Doctrine files from the vendor directory.
+
+##Installation##
+
+Enable the plugin in ``config/ProjectConfiguration.class.php``, **before** you enable the ``sfDoctrinePlugin``:
+
+    [php]
+    class ProjectConfiguration extends sfProjectConfiguration
+    {
+      public function setup()
+      {
+        $this->enablePlugins(array(
+          'drDoctrineCompilePlugin', // N.B. first enable drDoctrineCompilePlugin, then sfDoctrinePlugin
+          'sfDoctrinePlugin',
+          // ...
+        ));
+      }
+      
+      // ...
+    }
+
+##Usage##
+
+Run the command:
+
+    ./symfony doctrine:compile-core
+    
+As a result, a new file is created: ``cache/doctrine/Doctrine.compiled.php``. This file is automatically included by the plugin.
+
+##Optional configuration##
+
+You may configure the path where you wish to save the compiled core to:
+
+    # in app.yml:
+    
+    all:
+      doctrine:
+        compiled_path: /home/doctrine/Doctrine.compiled.php
+
+When you are using version control software, you should not commit the compiled file. Instead, add it to the ignore list.
+
+By default, the compiled file is saved to ``cache/doctrine/Doctrine.compiled.php``. Thus when the cache is cleared using the ``symfony cache:clear`` command, the compiled file will also be deleted. By default the compiled file is automatically created again, unless you disable this functionality:
+
+    # in app.yml:
+    
+    all:
+      doctrine:
+        auto_compile: false
+
+##Warning##
+
+To make this plugin work, I had to override the config setting ``sf_doctrine_dir``, so that it points to a "fake" directory that contains an empty file ``Doctrine.php``. This may interfere with your existing project.
+
+##To do##
+
+- Provide a way to use the compiler on non-*nix servers
